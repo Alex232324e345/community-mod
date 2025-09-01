@@ -1,0 +1,177 @@
+[
+    {
+        "name": "Dex",
+        "icon": "externa/imagen/Dex.png",
+        "script": "require(14572394952)('RBLX_USERNAME') wait(5) game:GetService('Players').Name = 'Players'"
+    },
+    {
+        "name": "Respawn",
+        "icon": "externa/imagen/rwfresh.png",
+        "script": "game:GetService('Players').RBLX_USERNAME:LoadCharacter()"
+    },
+    {
+        "name": "R6",
+        "icon": "externa/imagen/script.png",
+        "script": "require(3436957371):r6('RBLX_USERNAME')"
+    },
+    {
+        "name": "Katanirst",
+        "icon": "externa/imagen/script.png",
+        "script": "require(8038057972).CLoad('RBLX_USERNAME')"
+    },
+    {
+        "name": "Refinery",
+        "icon": "externa/imagen/script.png",
+        "script": "require(14080317322).Refinary()"
+    },
+    {
+        "name": "The Button",
+        "icon": "externa/imagen/script.png",
+        "script": "require(14314013653):button('RBLX_USERNAME')"
+    },
+    {
+        "name": "War Helicopter",
+        "icon": "externa/imagen/script.png",
+        "script": "require(12620186035).Huey('RBLX_USERNAME')"
+    },
+    {
+        "name": "FakeVR",
+        "icon": "externa/imagen/script.png",
+        "script": "require(6223977609)['FakeVr']('RBLX_USERNAME')"
+    },
+    {
+        "name": "Infinite Yield",
+        "icon": "externa/imagen/script.png",
+        "script": "require(12151433701)('RBLX_USERNAME')"
+    },
+    {
+        "name": "Reality Glitcher",
+        "icon": "externa/imagen/script.png",
+        "script": "require(6223977609)['RealityGlitcher']('RBLX_USERNAME')"
+    },
+    {
+        "name": "CHANCE",
+        "icon": "externa/imagen/script.png",
+        "script": "require(6223977609)['Chance']('RBLX_USERNAME')"
+    },
+    {
+        "name": "Tesseract",
+        "icon": "externa/imagen/script.png",
+        "script": "require(6223977609)['Tesseract']('RBLX_USERNAME')"
+    },
+    {
+        "name": "Banana",
+        "icon": "externa/imagen/script.png",
+        "script": "require(6223977609)['Banana']('RBLX_USERNAME')"
+    },
+    {
+        "name": "Mr Bye Bye",
+        "icon": "externa/imagen/script.png",
+        "script": "require(6515226671).load('RBLX_USERNAME') "
+    },
+    {
+        "name": "Mr Bye Bye Mini",
+        "icon": "externa/imagen/script.png",
+        "script": "require(5629629397).load('RBLX_USERNAME') "
+    },
+    {
+        "name": "Mr Bye Bye Giant",
+        "icon": "externa/imagen/script.png",
+        "script": "require(5630545228).load('RBLX_USERNAME') "
+    },
+    {
+        "name": "Lost Psygen",
+        "icon": "externa/imagen/script.png",
+        "script": "require(6223977609)['Lost Psygen']('RBLX_USERNAME')"
+    },
+    {
+        "name": "Ban Hammer",
+        "icon": "externa/imagen/banhammer.png",
+        "script": "require(5448035802).Hammer('RBLX_USERNAME','BanHammer')"
+    },
+    {
+        "name": "Lunatic",
+        "icon": "externa/imagen/lunatic.png",
+        "script": "require(5813708464).load('RBLX_USERNAME')"
+    },
+    {
+        "name": "Reality Orb",
+        "icon": "externa/imagen/orb.png",
+        "script": "require(4780399515).load('RBLX_USERNAME')"
+    },
+    {
+        "name": "Siren Head",
+        "icon": "externa/imagen/siren.png",
+        "script": "require(5239955586).Dark('RBLX_USERNAME')"
+    },
+    {
+        "name": "SledgeHammer",
+        "icon": "externa/imagen/hammer.png",
+        "script": "require(8038037940).CLoad('RBLX_USERNAME')"
+    },
+    {
+        "name": "Mystic Tools",
+        "icon": "externa/imagen/mystic.png",
+        "script": "require(4780399515).load('RBLX_USERNAME')"
+    },
+    {
+        "name": "Topkek V3",
+        "icon": "externa/imagen/TopKek.png",
+        "script": "require(2609384717).load('RBLX_USERNAME')"
+    },
+    {
+        "name": "K00pkidd gui",
+        "icon": "externa/imagen/k00p.png",
+        "script": "require(12313085498).pipiu('RBLX_USERNAME')"
+    },
+    {
+        "name": "doges",
+        "icon": "externa/imagen/doge.png",
+        "script": "require(5115249013).fehack('RBLX_USERNAME')"
+    },
+    {
+        "name": "RopeWeb",
+        "icon": "externa/imagen/ball.png",
+        "script": "require(15884743161).RopeBall('RBLX_USERNAME')"
+    },
+    {
+        "name": "Wasp Fighter Jet",
+        "icon": "externa/imagen/wasp.png",
+        "script": "require(5860060462).load('RBLX_USERNAME')"
+    },
+    {
+        "name": "Wild Katana",
+        "icon": "externa/imagen/script.png",
+        "script": "require(14175063457)('RBLX_USERNAME')"
+    },
+    {
+        "name": "Gun Journer",
+        "icon": "externa/imagen/script.png",
+        "script": "require(14175074837)('RBLX_USERNAME')"
+    },
+    {
+        "name": "Bow Master",
+        "icon": "externa/imagen/script.png",
+        "script": "require(14175067340)('RBLX_USERNAME')"
+    },
+    {
+        "name": "Abyss Eye",
+        "icon": "externa/imagen/script.png",
+        "script": "require(14175105993)('RBLX_USERNAME')"
+    },
+    {
+        "name": "Wiron",
+        "icon": "externa/imagen/script.png",
+        "script": "require(7972125129).CLoad('RBLX_USERNAME')"
+    },
+    {
+        "name": "Road Rogue",
+        "icon": "externa/imagen/script.png",
+        "script": "require(7473216460).load('RBLX_USERNAME')"
+    },
+    {
+        "name": "Tiny Infernous",
+        "icon": "externa/imagen/script.png",
+        "script": "require(8828734242)('RBLX_USERNAME')"
+    }
+] 
