@@ -1,57 +1,19 @@
-const SUPABASE_URL = 'https://smzywlljyhcnymukakkc.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_tkN-c_D3CJBaNe9PZFc5Yw_WJ6VcuQx';
-const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` };
-const links = [...document.querySelectorAll('.nav a')];
-const sections = links.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
-const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) links.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${entry.target.id}`)); }), { rootMargin: '-35% 0px -55% 0px' });
-sections.forEach((section) => observer.observe(section));
-
-const form = document.querySelector('#mod-form');
-const list = document.querySelector('#mod-list');
-const message = document.querySelector('#form-message');
-const safe = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-
-function addCard(mod) {
-  const card = document.createElement('article');
-  const download = mod.file_url || mod.download_url;
-  card.className = 'mod-card user-mod';
-  card.innerHTML = `<div class="mod-icon">${safe(mod.name.slice(0, 2).toUpperCase())}</div><div class="mod-info"><div class="mod-title"><h3>${safe(mod.name)}</h3><span class="version">v${safe(mod.version)}</span></div><p>${safe(mod.description)}</p><div class="tag-row"><span>Community</span><span>${safe(mod.file_name || 'Download link')}</span></div></div>${download ? `<a class="button primary download-button" href="${safe(download)}" target="_blank" rel="noreferrer">Download ↗</a>` : ''}`;
-  list.append(card);
-}
-
-async function loadMods() {
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/mods?select=*&order=created_at.desc`, { headers });
-  if (!response.ok) throw new Error('Could not load mods.');
-  (await response.json()).forEach(addCard);
-}
-
-loadMods().catch(() => { message.textContent = 'The mod database is not set up yet.'; });
-
-form.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const formData = new FormData(form);
-  const file = form.elements.file.files[0];
-  const mod = { name: formData.get('name'), version: formData.get('version'), description: formData.get('description'), download_url: formData.get('url') || null, file_url: null, file_name: null };
-  const button = form.querySelector('button[type="submit"]');
-  if (!mod.download_url && !file) { message.textContent = 'Add a download URL or choose a mod file first.'; return; }
-  button.disabled = true;
-  message.textContent = 'Submitting mod…';
-  try {
-    if (file) {
-      const path = `${crypto.randomUUID()}-${file.name}`;
-      const upload = await fetch(`${SUPABASE_URL}/storage/v1/object/mods/${encodeURIComponent(path)}`, { method: 'POST', headers: { ...headers, 'Content-Type': file.type || 'application/octet-stream' }, body: file });
-      if (!upload.ok) throw new Error('File upload failed.');
-      mod.file_url = `${SUPABASE_URL}/storage/v1/object/public/mods/${encodeURIComponent(path)}`;
-      mod.file_name = file.name;
-    }
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/mods`, { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(mod) });
-    if (!response.ok) throw new Error('Database insert failed.');
-    addCard((await response.json())[0]);
-    form.reset();
-    message.textContent = 'Mod submitted for everyone to see.';
-  } catch (error) {
-    message.textContent = error.message;
-  } finally {
-    button.disabled = false;
-  }
-});
+const SUPABASE_URL='https://smzywlljyhcnymukakkc.supabase.co';
+const SUPABASE_KEY='sb_publishable_tkN-c_D3CJBaNe9PZFc5Yw_WJ6VcuQx';
+let adminSession=null;
+const headers={apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`};
+const links=[...document.querySelectorAll('.nav a')],sections=links.map(link=>document.querySelector(link.getAttribute('href'))).filter(Boolean);
+const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting)links.forEach(link=>link.classList.toggle('active',link.getAttribute('href')===`#${entry.target.id}`));}),{rootMargin:'-35% 0px -55% 0px'});sections.forEach(section=>observer.observe(section));
+const form=document.querySelector('#mod-form'),list=document.querySelector('#mod-list'),message=document.querySelector('#form-message');
+const safe=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]);
+function addCard(mod){const card=document.createElement('article'),download=mod.file_url||mod.download_url;card.className='mod-card user-mod';card.dataset.id=mod.id;card.dataset.fileUrl=mod.file_url||'';const target=download?download+(download.includes('?')?'&':'?')+'download='+encodeURIComponent(mod.file_name||'mod-file'):'';card.innerHTML=`<div class="mod-icon">${safe(mod.name.slice(0,2).toUpperCase())}</div><div class="mod-info"><div class="mod-title"><h3>${safe(mod.name)}</h3><span class="version">v${safe(mod.version)}</span></div><p>${safe(mod.description)}</p><div class="tag-row"><span>Community</span><span>${safe(mod.file_name||'Download link')}</span></div></div>${target?`<a class="button primary download-button" download href="${safe(target)}" target="_blank" rel="noreferrer">Download ↗</a>`:''}`;list.append(card)}
+async function loadMods(){list.innerHTML='';const response=await fetch(`${SUPABASE_URL}/rest/v1/mods?select=*&published=eq.true&order=created_at.desc`,{headers});if(!response.ok)throw new Error('Could not load mods.');(await response.json()).forEach(addCard)}
+loadMods().catch(()=>{message.textContent='The mod database is not set up yet.';});
+const refresh=document.createElement('button');refresh.textContent='Refresh mods';refresh.onclick=loadMods;document.querySelector('#mods').prepend(refresh);
+form.addEventListener('submit',async event=>{event.preventDefault();const formData=new FormData(form),file=form.elements.file.files[0],mod={name:formData.get('name'),version:formData.get('version'),description:formData.get('description'),download_url:formData.get('url')||null,file_url:null,file_name:null,published:false},button=form.querySelector('button[type="submit"]');if(!mod.download_url&&!file){message.textContent='Add a download URL or choose a mod file first.';return}button.disabled=true;message.textContent='Submitting for admin review…';try{if(file){if(file.size>50*1024*1024)throw new Error('File is too large. Use a file smaller than 50 MB.');const path=`${crypto.randomUUID()}-${file.name}`,upload=await fetch(`${SUPABASE_URL}/storage/v1/object/mods/${encodeURIComponent(path)}`,{method:'POST',headers:{...headers,'Content-Type':file.type||'application/octet-stream'},body:file});if(!upload.ok){let detail='';try{detail=(await upload.json()).message||''}catch{}throw new Error(detail||`File upload failed (${upload.status}).`)}mod.file_url=`${SUPABASE_URL}/storage/v1/object/public/mods/${encodeURIComponent(path)}`;mod.file_name=file.name}const response=await fetch(`${SUPABASE_URL}/rest/v1/mods`,{method:'POST',headers:{...headers,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(mod)});if(!response.ok)throw new Error('Database insert failed.');form.reset();message.textContent='Submitted. Waiting for admin approval.';if(adminSession)loadPending()}catch(error){message.textContent=error.message}finally{button.disabled=false}});
+const admin=document.createElement('form');admin.innerHTML='<h3>Admin login</h3><input name="email" type="email" placeholder="Admin email" required><input name="password" type="password" placeholder="Password" required><button type="submit">Log in</button><span id="admin-message"></span>';document.querySelector('#submit').append(admin);
+const review=document.createElement('section');review.innerHTML='<h3>Admin review</h3><div id="pending-mods">Log in to review submissions.</div>';document.querySelector('#submit').append(review);
+async function loadPending(){const box=review.querySelector('#pending-mods');box.textContent='Loading pending mods…';const response=await fetch(`${SUPABASE_URL}/rest/v1/mods?select=*&published=eq.false&order=created_at.desc`,{headers});if(!response.ok){box.textContent='Could not load pending mods.';return}const mods=await response.json();box.innerHTML=mods.length?'':'No pending mods.';mods.forEach(mod=>{const row=document.createElement('div');row.textContent=`${mod.name} — v${mod.version}`;const approve=document.createElement('button');approve.textContent='Publish';approve.onclick=async()=>{const result=await fetch(`${SUPABASE_URL}/rest/v1/mods?id=eq.${mod.id}`,{method:'PATCH',headers:{...headers,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({published:true})});if(result.ok){row.remove();loadMods()}};row.append(' ',approve);box.append(row)})}
+admin.addEventListener('submit',async event=>{event.preventDefault();const note=admin.querySelector('#admin-message'),data=new FormData(admin);note.textContent='Logging in…';const response=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:data.get('email'),password:data.get('password')})});if(!response.ok){note.textContent='Login failed.';return}adminSession=await response.json();headers.Authorization=`Bearer ${adminSession.access_token}`;note.textContent='Admin logged in.';loadPending();document.querySelectorAll('.mod-card').forEach(card=>addDelete(card))});
+function addDelete(card){if(card.querySelector('.admin-delete'))return;const button=document.createElement('button');button.className='admin-delete';button.textContent='Delete';button.onclick=()=>deleteMod(card);card.append(button)}
+async function deleteMod(card){if(!adminSession)return;const fileUrl=card.dataset.fileUrl,marker='/storage/v1/object/public/mods/';if(fileUrl.includes(marker)){const path=decodeURIComponent(fileUrl.split(marker)[1]);await fetch(`${SUPABASE_URL}/storage/v1/object/mods/${encodeURIComponent(path)}`,{method:'DELETE',headers})}const response=await fetch(`${SUPABASE_URL}/rest/v1/mods?id=eq.${encodeURIComponent(card.dataset.id)}`,{method:'DELETE',headers:{...headers,Prefer:'return=minimal'}});if(response.ok)card.remove()}
