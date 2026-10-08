@@ -1,3 +1,6 @@
+const SUPABASE_URL = 'https://smzywlljyhcnymukakkc.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tkN-c_D3CJBaNe9PZFc5Yw_WJ6VcuQx';
+const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` };
 const links = [...document.querySelectorAll('.nav a')];
 const sections = links.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
 const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) links.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${entry.target.id}`)); }), { rootMargin: '-35% 0px -55% 0px' });
@@ -6,33 +9,49 @@ sections.forEach((section) => observer.observe(section));
 const form = document.querySelector('#mod-form');
 const list = document.querySelector('#mod-list');
 const message = document.querySelector('#form-message');
-const savedMods = JSON.parse(localStorage.getItem('community-mods') || '[]');
-const safe = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+const safe = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 
 function addCard(mod) {
   const card = document.createElement('article');
+  const download = mod.file_url || mod.download_url;
   card.className = 'mod-card user-mod';
-  card.innerHTML = `<div class="mod-icon">${safe(mod.name.slice(0, 2).toUpperCase())}</div><div class="mod-info"><div class="mod-title"><h3>${safe(mod.name)}</h3><span class="version">v${safe(mod.version)}</span></div><p>${safe(mod.description)}</p><div class="tag-row"><span>Community</span><span>User submitted</span></div></div><a class="button primary download-button" href="${safe(mod.url)}" target="_blank" rel="noreferrer">Download ↗</a>`;
+  card.innerHTML = `<div class="mod-icon">${safe(mod.name.slice(0, 2).toUpperCase())}</div><div class="mod-info"><div class="mod-title"><h3>${safe(mod.name)}</h3><span class="version">v${safe(mod.version)}</span></div><p>${safe(mod.description)}</p><div class="tag-row"><span>Community</span><span>${safe(mod.file_name || 'Download link')}</span></div></div>${download ? `<a class="button primary download-button" href="${safe(download)}" target="_blank" rel="noreferrer">Download ↗</a>` : ''}`;
   list.append(card);
 }
-savedMods.forEach(addCard);
 
-form.addEventListener('submit', (event) => {
+async function loadMods() {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/mods?select=*&order=created_at.desc`, { headers });
+  if (!response.ok) throw new Error('Could not load mods.');
+  (await response.json()).forEach(addCard);
+}
+
+loadMods().catch(() => { message.textContent = 'The mod database is not set up yet.'; });
+
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const mod = Object.fromEntries(new FormData(form));
+  const formData = new FormData(form);
   const file = form.elements.file.files[0];
-  if (!mod.url && !file) {
-    message.textContent = 'Add a download URL or choose a mod file first.';
-    return;
+  const mod = { name: formData.get('name'), version: formData.get('version'), description: formData.get('description'), download_url: formData.get('url') || null, file_url: null, file_name: null };
+  const button = form.querySelector('button[type="submit"]');
+  if (!mod.download_url && !file) { message.textContent = 'Add a download URL or choose a mod file first.'; return; }
+  button.disabled = true;
+  message.textContent = 'Submitting mod…';
+  try {
+    if (file) {
+      const path = `${crypto.randomUUID()}-${file.name}`;
+      const upload = await fetch(`${SUPABASE_URL}/storage/v1/object/mods/${encodeURIComponent(path)}`, { method: 'POST', headers: { ...headers, 'Content-Type': file.type || 'application/octet-stream' }, body: file });
+      if (!upload.ok) throw new Error('File upload failed.');
+      mod.file_url = `${SUPABASE_URL}/storage/v1/object/public/mods/${encodeURIComponent(path)}`;
+      mod.file_name = file.name;
+    }
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/mods`, { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(mod) });
+    if (!response.ok) throw new Error('Database insert failed.');
+    addCard((await response.json())[0]);
+    form.reset();
+    message.textContent = 'Mod submitted for everyone to see.';
+  } catch (error) {
+    message.textContent = error.message;
+  } finally {
+    button.disabled = false;
   }
-  if (file) {
-    mod.url = URL.createObjectURL(file);
-    mod.fileName = file.name;
-  } else {
-    savedMods.push(mod);
-    localStorage.setItem('community-mods', JSON.stringify(savedMods));
-  }
-  addCard(mod);
-  form.reset();
-  message.textContent = file ? `${file.name} added for download in this browser session.` : 'Mod submitted and added to the library on this browser.';
 });
