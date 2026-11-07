@@ -118,7 +118,7 @@ set search_path = public
 as $$
 declare
   request_headers json;
-  client_key text;
+  v_client_key text;
   current_window timestamptz;
   current_count integer;
 begin
@@ -127,7 +127,7 @@ begin
   end if;
 
   request_headers := coalesce(current_setting('request.headers', true), '{}')::json;
-  client_key := coalesce(
+  v_client_key := coalesce(
     auth.uid()::text,
     request_headers ->> 'x-forwarded-for',
     request_headers ->> 'cf-connecting-ip',
@@ -135,7 +135,7 @@ begin
   );
 
   insert into public.mod_submission_rate_limits (client_key)
-  values (client_key)
+  values (v_client_key)
   on conflict (client_key) do nothing;
 
   select window_started_at, request_count
@@ -147,13 +147,13 @@ begin
   if now() - current_window >= interval '1 minute' then
     update public.mod_submission_rate_limits
     set window_started_at = now(), request_count = 1
-    where mod_submission_rate_limits.client_key = limit_mod_submissions.client_key;
+    where mod_submission_rate_limits.client_key = v_client_key;
   elsif current_count >= 5 then
     raise exception 'submission rate limit exceeded';
   else
     update public.mod_submission_rate_limits
     set request_count = request_count + 1
-    where mod_submission_rate_limits.client_key = limit_mod_submissions.client_key;
+    where mod_submission_rate_limits.client_key = v_client_key;
   end if;
 
   return new;
