@@ -141,7 +141,7 @@ begin
   select window_started_at, request_count
   into current_window, current_count
   from public.mod_submission_rate_limits
-  where mod_submission_rate_limits.client_key = limit_mod_submissions.client_key
+  where mod_submission_rate_limits.client_key = v_client_key
   for update;
 
   if now() - current_window >= interval '1 minute' then
