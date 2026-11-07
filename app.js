@@ -17,7 +17,7 @@ const list = document.querySelector('#mod-list');
 const message = document.querySelector('#form-message');
 const count = document.querySelector('.stats strong');
 
-function filePath(fileUrl) {
+if (form && list && message) {\nfunction filePath(fileUrl) {
   const marker = '/storage/v1/object/public/mods/';
   if (!fileUrl?.includes(marker)) return null;
   return decodeURIComponent(fileUrl.split(marker)[1]);
@@ -168,10 +168,7 @@ form.addEventListener('submit', async event => {
   } finally {
     button.disabled = false;
   }
-});
-
-const adminNav = document.querySelector('#admin-nav');
-const adminSection = document.querySelector('#admin');
+});\n}\n\nconst adminSection = document.querySelector('#admin');
 const admin = document.querySelector('#admin-login');
 const review = document.querySelector('#admin-review');
 
@@ -191,8 +188,10 @@ async function loadPendingMods() {
   box.innerHTML = mods.length ? '' : 'No pending mods.';
   mods.forEach(mod => {
     const row = document.createElement('div');
+    row.className = 'pending-mod-row';
     row.textContent = `${mod.name} — v${mod.version}`;
     const approve = document.createElement('button');
+    approve.className = 'button primary';
     approve.textContent = 'Publish';
     approve.onclick = async () => {
       const result = await fetch(`${SUPABASE_URL}/rest/v1/mods?id=eq.${encodeURIComponent(mod.id)}`, {
@@ -202,7 +201,7 @@ async function loadPendingMods() {
       });
       if (result.ok) {
         row.remove();
-        loadMods();
+        if (!box.children.length) box.textContent = 'No pending mods.';
       }
     };
     row.append(' ', approve);
@@ -210,35 +209,34 @@ async function loadPendingMods() {
   });
 }
 
-admin.addEventListener('submit', async event => {
-  event.preventDefault();
-  const note = admin.querySelector('#admin-message');
-  const data = new FormData(admin);
-  note.textContent = 'Logging in…';
+if (admin && review) {
+  admin.addEventListener('submit', async event => {
+    event.preventDefault();
+    const note = admin.querySelector('#admin-message');
+    const data = new FormData(admin);
+    note.textContent = 'Logging in…';
 
-  if (data.get('email') !== ADMIN_EMAIL) {
-    note.textContent = 'Login failed.';
-    return;
-  }
+    if (data.get('email') !== ADMIN_EMAIL) {
+      note.textContent = 'Login failed.';
+      return;
+    }
 
-  const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: data.get('email'), password: data.get('password') })
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: data.get('email'), password: data.get('password') })
+    });
+    if (!response.ok) {
+      note.textContent = 'Login failed.';
+      return;
+    }
+
+    session = await response.json();
+    if (adminSection) adminSection.hidden = false;
+    note.textContent = 'Admin logged in.';
+    loadPendingMods();
   });
-  if (!response.ok) {
-    note.textContent = 'Login failed.';
-    return;
-  }
-
-  session = await response.json();
-  adminNav.hidden = false;
-  adminSection.hidden = false;
-  note.textContent = 'Admin logged in.';
-  loadPendingMods();
-  location.hash = 'admin';
-});
-
+}
 
 // Casual DevTools deterrent only. Browser users can always inspect client-side code.
 document.addEventListener('contextmenu', event => event.preventDefault());
@@ -248,7 +246,5 @@ document.addEventListener('keydown', event => {
     event.key === 'F12' ||
     (event.ctrlKey && event.shiftKey && ['i', 'j', 'c'].includes(key)) ||
     (event.ctrlKey && key === 'u')
-  ) {
-    event.preventDefault();
-  }
+  ) event.preventDefault();
 });
