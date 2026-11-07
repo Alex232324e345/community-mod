@@ -238,3 +238,17 @@ admin.addEventListener('submit', async event => {
   loadPendingMods();
   location.hash = 'admin';
 });
+
+
+// Casual DevTools deterrent only. Browser users can always inspect client-side code.
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('keydown', event => {
+  const key = event.key.toLowerCase();
+  if (
+    event.key === 'F12' ||
+    (event.ctrlKey && event.shiftKey && ['i', 'j', 'c'].includes(key)) ||
+    (event.ctrlKey && key === 'u')
+  ) {
+    event.preventDefault();
+  }
+});
