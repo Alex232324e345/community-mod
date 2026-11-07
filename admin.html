@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Community Mod administrator review">
+  <title>Admin Review · Community Mod</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./submit.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./index.html"><span class="brand-mark">C</span><span>Community Mod</span></a>
+    <nav class="nav">
+      <a href="./index.html">Back to site</a>
+      <a class="active" href="./admin.html">Admin review</a>
+    </nav>
+  </header>
+  <main>
+    <section id="admin" class="submit-section section-shell">
+      <div class="submit-copy">
+        <p class="eyebrow">PRIVATE AREA</p>
+        <h1>Admin review.</h1>
+        <p>Sign in to review pending community submissions and publish approved mods.</p>
+      </div>
+      <div>
+        <form id="admin-login" class="mod-form">
+          <label>Admin email<input name="email" type="email" placeholder="Admin email" required></label>
+          <label>Password<input name="password" type="password" placeholder="Password" required></label>
+          <button class="button primary" type="submit">Log in <span>→</span></button>
+          <p id="admin-message" class="form-message" role="status"></p>
+        </form>
+        <div id="admin-review" class="admin-review">
+          <h2>Pending mods</h2>
+          <div id="pending-mods">Log in to review submissions.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer section-shell"><span>Community Mod admin area</span><a href="./index.html">Return to library ↗</a></footer>
+  <script src="./app.js?v=9"></script>
+</body>
+</html>
